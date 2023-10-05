@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+#
+# Copyright © 2023 Kizziama <kizziama@proton.me>
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+set -e
+
+user() {
+	echo "[!] Enter your git username"
+	read git_user
+	if [ -z "$git_user" ]; then
+		echo "[x] Please specify your git username"
+		user
+	else
+		git config --global user.name "$git_user"
+	fi
+	echo "[✓] Set '$git_user' as your git username"
+}
+
+email() {
+	echo "[!] Enter your git email"
+	read git_email
+	if [ -z "$git_email" ]; then
+		echo "[x] Please specify your git email"
+		email
+	else
+		git config --global user.email "$git_email"
+	fi
+	echo "[✓] Set '$git_email' as your git email"
+}
+
+credential() {
+	echo "[!] Want to set credential? y/N"
+	read creds
+	if [ "$creds" = "y" ]; then
+		echo "[!] Enter your git token"
+		read git_token
+		if [ -z "$git_token" ]; then
+			echo "[x] Please specify your git token"
+			credential
+		else
+			GIT_TOKEN="$git_token"
+			GIT_USER="$git_user"
+			echo "https://$GIT_USER:$GIT_TOKEN@github.com" >~/.git-credentials
+			git config --global credential.helper "store --file ~/.git-credentials"
+		fi
+	fi
+}
+
+alias() {
+	echo "[!] Want to set git alias? y/N"
+	read git_alias
+	if [ -z "$git_alias" ]; then
+		echo "[x] Please enter y/N"
+		alias
+	else
+		if [ "$git_alias" = "y" ]; then
+			git config --global alias.c "commit -s"
+			git config --global alias.cam "commit --am"
+			git config --global alias.cm "commit"
+			git config --global alias.csm "commit -s -m"
+			git config --global alias.ca "cherry-pick --abort"
+			git config --global alias.cr "cherry-pick --signoff"
+			git config --global alias.p "push -f"
+			git config --global alias.cc "cherry-pick --continue"
+			git config --global alias.cs "cherry-pick --skip"
+			git config --global alias.cp "cherry-pick"
+			git config --global alias.r "revert"
+			git config --global alias.rc "revert --continue"
+			git config --global alias.ro "remote rm origin"
+			git config --global alias.ra "remote add origin"
+			git config --global alias.s "switch -c"
+			git config --global alias.b "branch"
+			git config --global alias.rh "reset --hard"
+			git config --global alias.ch "checkout"
+			git config --global alias.f "fetch"
+			git config --global alias.m "merge"
+		fi
+	fi
+}
+
+change-id() {
+	echo "[!] Want to set change-id hooks? y/N"
+	read hooks
+	if [ -z "$hooks" ]; then
+		echo "[x] Please enter y/N"
+		change-id
+	else
+		if [ "$hooks" = "y" ]; then
+			mkdir -p ~/.git/hooks
+			git config --global core.hooksPath ~/.git/hooks
+			curl -Lo ~/.git/hooks/commit-msg http://review.lineageos.org/tools/hooks/commit-msg
+			chmod a+x ~/.git/hooks/commit-msg
+		fi
+	fi
+}
+
+user
+email
+credential
+alias
+change-id
