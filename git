@@ -51,3 +51,19 @@ if [ "$1" == "creds" ]; then
 		git config --global credential.helper "store --file ~/.git-credentials"
 	fi
 fi
+
+if [ "$1" == "gpg" ]; then
+	if [ ! -d "gpg" ]; then
+		mkdir gpg
+	fi
+	wget https://raw.githubusercontent.com/Kizziama/git/main/gpg/public.gpg
+	wget https://raw.githubusercontent.com/Kizziama/git/main/gpg/private.gpg
+	wget https://raw.githubusercontent.com/Kizziama/git/main/gpg/trust.gpg
+	gpg --import gpg/public.gpg
+	gpg --import gpg/private.gpg
+	gpg --import-ownertrust gpg/trust.gpg
+	git config --global user.signingkey "9A13029BC9453365"
+	git config --global commit.gpgsign true
+	echo "export GPG_TTY=$(tty)" >>~/.bashrc
+	rm -rf gpg
+fi
