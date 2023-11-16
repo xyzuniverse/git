@@ -8,32 +8,22 @@
 set -e
 
 # Git identity
-GIT_USER="Kizziama"
-GIT_EMAIL="kizziama@proton.me"
+GIT_USER="xyzuniverse"
+GIT_EMAIL="dev.xyzuniverse@gmail.com"
 git config --global user.name "$GIT_USER"
 git config --global user.email "$GIT_EMAIL"
 
 # Git alias
-git config --global alias.c "commit -s"
-git config --global alias.cam "commit --am"
-git config --global alias.cm "commit"
-git config --global alias.csm "commit -s -m"
-git config --global alias.ca "cherry-pick --abort"
-git config --global alias.cr "cherry-pick --signoff"
-git config --global alias.p "push -f"
-git config --global alias.cc "cherry-pick --continue"
-git config --global alias.cs "cherry-pick --skip"
-git config --global alias.cp "cherry-pick"
-git config --global alias.r "revert"
-git config --global alias.rc "revert --continue"
-git config --global alias.ro "remote rm origin"
-git config --global alias.ra "remote add origin"
-git config --global alias.s "switch -c"
-git config --global alias.b "branch"
-git config --global alias.rh "reset --hard"
-git config --global alias.ch "checkout"
-git config --global alias.f "fetch"
-git config --global alias.m "merge"
+git config --global alias.cpa "cherry-pick --abort"
+git config --global alias.cpc "cherry-pick --continue"
+git config --global alias.r "revert --signoff"
+git config --global alias.rs "reset --hard"
+git config --global alias.l "log"
+git config --global alias.s "status"
+git config --global alias.ps "push -f -u"
+git config --global alias.ra "remote add"
+git config --global alias.cp "cherry-pick --signoff"
+git config --global alias.cma "commit --amend"
 
 # Change-id hooks
 mkdir -p ~/.git/hooks
@@ -42,28 +32,46 @@ curl -Lo ~/.git/hooks/commit-msg http://review.lineageos.org/tools/hooks/commit-
 chmod a+x ~/.git/hooks/commit-msg
 
 # Git credentials
-if [ "$1" == "creds" ]; then
-	if [ ! -f "~/.git-credentials" ]; then
-		echo "[!] Enter your git token"
-		read git_token
-		GIT_TOKEN="$git_token"
-		echo "https://$GIT_USER:$GIT_TOKEN@github.com" >~/.git-credentials
-		git config --global credential.helper "store --file ~/.git-credentials"
+case "$1" in
+    "creds")
+        ;&
+    "login")
+        ;&
+    "token")
+        if [ ! -f "~/.git-credentials" ]; then
+	    echo "[!] Enter your git token"
+	    read git_token
+	    GIT_TOKEN="$git_token"
+	    echo "https://$GIT_USER:$GIT_TOKEN@github.com" >~/.git-credentials
+	    git config --global credential.helper "store --file ~/.git-credentials"
+        fi
+        ;;
+    "gpg")
+        if [ ! -d "gpg" ]; then
+            mkdir gpg
+            wget https://raw.githubusercontent.com/xyzuniverse/git/main/gpg/public.gpg -O gpg/public.gpg
+            wget https://raw.githubusercontent.com/xyzuniverse/git/main/gpg/private.gpg -O gpg/private.gpg
+            wget https://raw.githubusercontent.com/xyzuniverse/git/main/gpg/trust.gpg -O gpg/trust.gpg
 	fi
-fi
 
-if [ "$1" == "gpg" ]; then
-	if [ ! -d "gpg" ]; then
-		mkdir gpg
-	fi
-	wget https://raw.githubusercontent.com/Kizziama/git/main/gpg/public.gpg
-	wget https://raw.githubusercontent.com/Kizziama/git/main/gpg/private.gpg
-	wget https://raw.githubusercontent.com/Kizziama/git/main/gpg/trust.gpg
+	# Import GPG keys from repository
 	gpg --import gpg/public.gpg
 	gpg --import gpg/private.gpg
 	gpg --import-ownertrust gpg/trust.gpg
-	git config --global user.signingkey "9A13029BC9453365"
+	git config --global user.signingkey "5235E7FC540FE8B4"
 	git config --global commit.gpgsign true
+
+	# Add GPG TTY to bashrc
 	echo "export GPG_TTY=$(tty)" >>~/.bashrc
+
+	# Delete GPG keys after importing
 	rm -rf gpg
-fi
+
+	echo "Done! Please relaunch bash shell for making GPG keys works properly."
+        ;;
+
+    *)
+        # Code to handle cases where $1 does not match any expected values
+        echo "Invalid argument: $1"
+        ;;
+esac
