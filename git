@@ -25,12 +25,6 @@ git config --global alias.ra "remote add"
 git config --global alias.cp "cherry-pick --signoff"
 git config --global alias.cma "commit --amend"
 
-# Change-id hooks
-mkdir -p ~/.git/hooks
-git config --global core.hooksPath ~/.git/hooks
-curl -Lo ~/.git/hooks/commit-msg http://review.lineageos.org/tools/hooks/commit-msg
-chmod a+x ~/.git/hooks/commit-msg
-
 # Git credentials
 case "$1" in
     "creds")
