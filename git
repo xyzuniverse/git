@@ -56,7 +56,7 @@ case "$1" in
 	git config --global commit.gpgsign true
 
 	# Add GPG TTY to bashrc
-	echo "export GPG_TTY=$(tty)" >>~/.bashrc
+	echo 'export GPG_TTY=$(tty)' >>~/.bashrc
 
 	# Delete GPG keys after importing
 	rm -rf gpg
